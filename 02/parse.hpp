@@ -2,15 +2,18 @@
 #ifndef MSU_CPP_SPRING_2020_PARSE_HPP
 #define MSU_CPP_SPRING_2020_PARSE_HPP
 
+namespace parse_callbacks {
 
-void setParseBegin(void (*callback)(const char *));
+    void setOnBegin(void (*callback)(const char *));
 
-void setParseEnd(void (*callback)());
+    void setOnEnd(void (*callback)());
 
-void setParseWord(void (*callback)(char *));
+    void setOnWord(void (*callback)(const std::string &));
 
-void setParseNumber(void (*callback)(char *));
+    void setOnNumber(void (*callback)(int));
 
-void parse(char *input);
+}
+
+void parse(const char *input);
 
 #endif //MSU_CPP_SPRING_2020_PARSE_HPP

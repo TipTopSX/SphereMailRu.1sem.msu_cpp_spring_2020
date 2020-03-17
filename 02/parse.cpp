@@ -1,46 +1,53 @@
 #include <cstring>
 #include <cctype>
+#include <cstdlib>
+#include <string>
 #include "parse.hpp"
 
-void (*parseBegin)(const char *);
+namespace parse_callbacks {
 
-void (*parseEnd)();
+    void (*onBegin)(const char *);
 
-void (*parseWord)(char *);
+    void (*onEnd)();
 
-void (*parseNumber)(char *);
+    void (*onWord)(const std::string &);
 
-void setParseBegin(void (*callback)(const char *))
-{
-    parseBegin = callback;
+    void (*onNumber)(int);
+
+    void setOnBegin(void (*callback)(const char *))
+    {
+        parse_callbacks::onBegin = callback;
+    }
+
+    void setOnEnd(void (*callback)())
+    {
+        parse_callbacks::onEnd = callback;
+    }
+
+    void setOnWord(void (*callback)(const std::string &))
+    {
+        parse_callbacks::onWord = callback;
+    }
+
+    void setOnNumber(void (*callback)(int))
+    {
+        parse_callbacks::onNumber = callback;
+    }
+
 }
 
-void setParseEnd(void (*callback)())
+void parse(const char *input)
 {
-    parseEnd = callback;
-}
-
-void setParseWord(void (*callback)(char *))
-{
-    parseWord = callback;
-}
-
-void setParseNumber(void (*callback)(char *))
-{
-    parseNumber = callback;
-}
-
-void parse(char *input)
-{
-    parseBegin(input);
-    char *pch = strtok(input, " \n\t");
+    parse_callbacks::onBegin(input);
+    char *pch = strtok(strdup(input), " \n\t");
     while (pch != nullptr) {
+        std::string s = std::string(pch);
         if (isdigit(pch[0])) {
-            parseNumber(pch);
+            parse_callbacks::onNumber(stoi(s));
         } else {
-            parseWord(pch);
+            parse_callbacks::onWord(s);
         }
         pch = strtok(nullptr, " \n\t");
     }
-    parseEnd();
+    parse_callbacks::onEnd();
 }
