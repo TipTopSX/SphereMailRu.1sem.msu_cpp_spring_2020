@@ -33,11 +33,12 @@ int main()
 {
     char str[] = "Lorem ipsum   45\ndolor   sit 1914\tamet";
     tester = "";
-    parse_callbacks::setOnBegin(myParseBegin);
-    parse_callbacks::setOnEnd(myParseEnd);
-    parse_callbacks::setOnWord(myParseWord);
-    parse_callbacks::setOnNumber(myParseNumber);
-    parse(str);
+    parse::setOnBegin(myParseBegin);
+    parse::setOnEnd(myParseEnd);
+    parse::setOnWord(myParseWord);
+    parse::setOnNumber(myParseNumber);
+    parse::parse(str);
+    std::cout << tester <<std::endl;
     assert(tester == "<<<Lorem ipsum   45\ndolor   sit 1914\tamet>>>|Lorem||ipsum|^45^|dolor||sit|^1914^|amet|___");
     std::cout << "OK" << std::endl;
 }
