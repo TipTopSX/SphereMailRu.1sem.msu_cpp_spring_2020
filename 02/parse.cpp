@@ -4,50 +4,58 @@
 #include <string>
 #include "parse.hpp"
 
-namespace parse_callbacks {
+namespace parse {
+    t_onBegin onBegin;
+    t_onEnd onEnd;
+    t_onWord onWord;
+    t_onNumber onNumber;
 
-    void (*onBegin)(const char *);
 
-    void (*onEnd)();
-
-    void (*onWord)(const std::string &);
-
-    void (*onNumber)(int);
-
-    void setOnBegin(void (*callback)(const char *))
+    void setOnBegin(t_onBegin callback)
     {
-        parse_callbacks::onBegin = callback;
+        parse::onBegin = callback;
     }
 
-    void setOnEnd(void (*callback)())
+    void setOnEnd(t_onEnd callback)
     {
-        parse_callbacks::onEnd = callback;
+        parse::onEnd = callback;
     }
 
-    void setOnWord(void (*callback)(const std::string &))
+    void setOnWord(t_onWord callback)
     {
-        parse_callbacks::onWord = callback;
+        parse::onWord = callback;
     }
 
-    void setOnNumber(void (*callback)(int))
+    void setOnNumber(t_onNumber callback)
     {
-        parse_callbacks::onNumber = callback;
+        parse::onNumber = callback;
     }
 
-}
+    void call(const char *begin, const char *end)
+    {
+        std::string s(begin, 0, end - begin);
+        if (isdigit(*begin))
+            parse::onNumber(stoi(s));
+        else
+            parse::onWord(s);
+    }
 
-void parse(const char *input)
-{
-    parse_callbacks::onBegin(input);
-    char *pch = strtok(strdup(input), " \n\t");
-    while (pch != nullptr) {
-        std::string s = std::string(pch);
-        if (isdigit(pch[0])) {
-            parse_callbacks::onNumber(stoi(s));
-        } else {
-            parse_callbacks::onWord(s);
+    void parse(const char *input)
+    {
+        parse::onBegin(input);
+        const char *pch = input;
+        bool inToken = false;
+        const char *begin = input;
+        while (*pch) {
+            if (!isspace(*pch) && !inToken)
+                begin = pch;
+            if (isspace(*pch) && inToken)
+                call(begin, pch);
+            inToken = isspace(*pch) == 0;
+            ++pch;
         }
-        pch = strtok(nullptr, " \n\t");
+        if (inToken)
+            call(begin, pch);
+        parse::onEnd();
     }
-    parse_callbacks::onEnd();
 }
