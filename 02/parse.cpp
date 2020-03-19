@@ -5,10 +5,15 @@
 #include "parse.hpp"
 
 namespace parse {
-    t_onBegin onBegin;
-    t_onEnd onEnd;
-    t_onWord onWord;
-    t_onNumber onNumber;
+    void blankParseBegin(const char *) {}
+    void blankParseEnd() {}
+    void blankParseWord(const std::string &){}
+    void blankParseNumber(int) {}
+
+    t_onBegin onBegin = blankParseBegin;
+    t_onEnd onEnd = blankParseEnd;
+    t_onWord onWord = blankParseWord;
+    t_onNumber onNumber = blankParseNumber;
 
 
     void setOnBegin(t_onBegin callback)
