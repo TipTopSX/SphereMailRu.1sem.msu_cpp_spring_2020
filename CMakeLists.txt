@@ -6,6 +6,6 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(01)
 
 add_executable(msu_cpp_spring_2020
-        02/parse.cpp
-        02/parse.hpp
-        02/main.cpp)
+        03/matrix.cpp
+        03/matrix.hpp
+        03/main.cpp)
