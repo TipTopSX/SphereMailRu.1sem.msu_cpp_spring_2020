@@ -12,12 +12,6 @@ struct Data
     {
         return serializer(a, b, c);
     }
-
-    template<class Deserializer>
-    Error deserialize(Deserializer &deserializer)
-    {
-        return deserializer(a, b, c);
-    }
 };
 
 int main()
@@ -34,6 +28,7 @@ int main()
 
     Deserializer deserializer(stream);
     const Error err = deserializer.load(y);
+    std::cout << y.a << " " << y.b << " " << y.c << " " << std::endl;
 
     assert(err == Error::NoError);
 
@@ -41,4 +36,4 @@ int main()
     assert(x.b == y.b);
     assert(x.c == y.c);
     std::cout << "OK" << std::endl;
-};
+}

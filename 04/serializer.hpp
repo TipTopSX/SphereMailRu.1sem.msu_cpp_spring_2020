@@ -35,9 +35,7 @@ private:
     template<class T>
     Error process(T &&val)
     {
-        if (print(val) != Error::NoError)
-            return Error::CorruptedArchive;
-        return Error::NoError;
+        return print(val);
     }
 
     template<class T, class... Args>
@@ -51,8 +49,7 @@ private:
     template<class T>
     Error print(T &val)
     {
-        out_ << std::boolalpha << val << Separator;
-        out_ << std::noboolalpha;
+        out_ << std::boolalpha << val << std::noboolalpha << Separator;
         return Error::NoError;
     }
 };
@@ -68,7 +65,7 @@ public:
     template<class T>
     Error load(T &object)
     {
-        return object.deserialize(*this);
+        return object.serialize(*this);
     }
 
     template<class... ArgsT>
@@ -81,20 +78,18 @@ private:
     template<class T>
     Error process(T &&val)
     {
-        if (load(val) != Error::NoError)
-            return Error::CorruptedArchive;
-        return Error::NoError;
+        return read(val);
     }
 
     template<class T, class... Args>
     Error process(T &&val, Args &&... args)
     {
-        if (load(val) != Error::NoError)
+        if (read(val) != Error::NoError)
             return Error::CorruptedArchive;
         return process(std::forward<Args>(args)...);
     }
 
-    Error load(uint64_t &val)
+    Error read(uint64_t &val)
     {
         std::string buf;
         in_ >> buf;
@@ -104,7 +99,7 @@ private:
         return Error::NoError;
     }
 
-    Error load(bool &val)
+    Error read(bool &val)
     {
         std::string buf;
         in_ >> buf;
