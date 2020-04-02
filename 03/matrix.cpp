@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include "matrix.hpp"
 
-Matrix::Matrix(int rowCount, int colCount)
+Matrix::Matrix(size_t rowCount, size_t colCount)
 {
     rows = rowCount;
     cols = colCount;
@@ -29,11 +29,19 @@ Matrix::Row::Row(int *matrix, size_t rowNum, size_t colCount)
     cols = colCount;
 }
 
-Matrix::Row Matrix::operator[](size_t i) const
+Matrix::Row Matrix::operator[](size_t i)
 {
     if (i >= rows)
         throw std::out_of_range("");
     return Matrix::Row(matrix, i, cols);
+}
+
+const Matrix::Row Matrix::operator[](size_t i) const
+{
+    if (i >= rows)
+        throw std::out_of_range("");
+    const auto result = Matrix::Row(matrix, i, cols);
+    return result;
 }
 
 Matrix Matrix::operator*(const int num) const
@@ -76,6 +84,13 @@ bool Matrix::operator!=(const Matrix &other) const
 }
 
 int &Matrix::Row::operator[](size_t i)
+{
+    if (i >= cols)
+        throw std::out_of_range("");
+    return row[i];
+}
+
+int Matrix::Row::operator[](size_t i) const
 {
     if (i >= cols)
         throw std::out_of_range("");

@@ -10,7 +10,7 @@ class Matrix
     int *matrix;
     size_t rows, cols;
 public:
-    Matrix(int rowCount, int colCount);
+    Matrix(size_t rowCount, size_t colCount);
 
     ~Matrix();
 
@@ -31,12 +31,14 @@ public:
     class Row
     {
         int *row;
-        int cols;
+        size_t cols;
     public:
         Row(int *matrix, size_t rowNum, size_t colCount);
 
         int &operator[](size_t i);
+        int operator[](size_t i) const;
     };
 
-    Row operator[](size_t i) const;
+    const Row operator[](size_t i) const;
+    Row operator[](size_t i);
 };
