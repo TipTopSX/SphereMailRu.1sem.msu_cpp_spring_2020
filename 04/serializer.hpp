@@ -25,7 +25,7 @@ public:
     }
 
     template<class... ArgsT>
-    Error operator()(ArgsT... args)
+    Error operator()(ArgsT &&... args)
     {
         return process(args...);
     }
@@ -56,7 +56,6 @@ private:
 
 class Deserializer
 {
-    static constexpr char Separator = ' ';
     std::istream &in_;
 public:
     explicit Deserializer(std::istream &in) : in_(in)
@@ -69,7 +68,7 @@ public:
     }
 
     template<class... ArgsT>
-    Error operator()(ArgsT... args)
+    Error operator()(ArgsT &&... args)
     {
         return process(args...);
     }

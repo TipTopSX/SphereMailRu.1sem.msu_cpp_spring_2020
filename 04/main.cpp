@@ -7,8 +7,8 @@ struct Data
     bool b;
     uint64_t c;
 
-    template<class Serializer>
-    Error serialize(Serializer &serializer)
+    template<class TSerializer>
+    Error serialize(TSerializer &serializer)
     {
         return serializer(a, b, c);
     }
@@ -28,7 +28,6 @@ int main()
 
     Deserializer deserializer(stream);
     const Error err = deserializer.load(y);
-    std::cout << y.a << " " << y.b << " " << y.c << " " << std::endl;
 
     assert(err == Error::NoError);
 
