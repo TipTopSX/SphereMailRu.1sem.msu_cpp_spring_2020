@@ -46,8 +46,13 @@ private:
         return process(std::forward<Args>(args)...);
     }
 
-    template<class T>
-    Error print(T &val)
+    Error print(uint64_t &val)
+    {
+        out_ << val << Separator;
+        return Error::NoError;
+    }
+
+    Error print(bool &val)
     {
         out_ << std::boolalpha << val << std::noboolalpha << Separator;
         return Error::NoError;
