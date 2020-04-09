@@ -24,6 +24,7 @@ int main()
     assert_error(format("{0} }", 1), "unexpected closing brace");
     assert_error(format("{0} {NaN}", 1), "not a number");
     assert_error(format("{0} {12{}", 1), "not a number");
+    assert_error(format("{0} {12", 1), "not a number");
     assert_error(format("{0} {12}", 1), "index out of range");
     std::cout << "OK" << std::endl;
 }
