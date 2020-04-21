@@ -6,5 +6,5 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(05)
 
 add_executable(msu_cpp_spring_2020
-        06/format.hpp
-        06/main.cpp)
+        07/vector.hpp
+        07/main.cpp)
