@@ -16,6 +16,17 @@ public:
     {
         operator delete[](ptr, sizeof(T) * count);
     }
+
+    template<class... Args>
+    static void construct(T *ptr, Args &&... args)
+    {
+        new(ptr) T(std::forward<Args>(args)...);
+    }
+
+    void destroy(T *ptr)
+    {
+        ptr->~T();
+    }
 };
 
 template<class T>
@@ -33,72 +44,72 @@ public:
         return *ptr_;
     }
 
-    inline Iterator &operator++()
+    Iterator &operator++()
     {
         ++ptr_;
         return *this;
     }
 
-    inline Iterator &operator--()
+    Iterator &operator--()
     {
         --ptr_;
         return *this;
     }
 
-    inline Iterator &operator+=(difference_type n)
+    Iterator &operator+=(difference_type n)
     {
         ptr_ += n;
         return *this;
     }
 
-    inline Iterator &operator-=(difference_type n)
+    Iterator &operator-=(difference_type n)
     {
         ptr_ -= n;
         return *this;
     }
 
-    inline Iterator operator+(difference_type n) const
+    Iterator operator+(difference_type n) const
     {
         return Iterator(ptr_ + n);
     }
 
-    inline Iterator operator-(difference_type n) const
+    Iterator operator-(difference_type n) const
     {
         return Iterator(ptr_ - n);
     }
 
-    friend inline Iterator operator+(difference_type left, const Iterator &right)
+    friend Iterator operator+(difference_type left, const Iterator &right)
     { return Iterator(left + right.ptr_); }
 
-    friend inline Iterator operator-(difference_type left, const Iterator &right)
+    friend Iterator operator-(difference_type left, const Iterator &right)
     { return Iterator(left - right.ptr_); }
 
-    inline Iterator &operator[](int n)
+    Iterator &operator[](int n)
     {
         return ptr_[n];
     }
 
-    inline bool operator==(const Iterator<T> &other) const
+    bool operator==(const Iterator<T> &other) const
     {
         return ptr_ == other.ptr_;
     }
 
-    inline bool operator!=(const Iterator<T> &other) const
+    bool operator!=(const Iterator<T> &other) const
     {
         return !(*this == other);
     }
 
-    inline bool operator<(const Iterator<T> &other) const
+    bool operator<(const Iterator<T> &other) const
     {
         return (this->ptr_ - other.ptr_ < 0);
     }
 
-    inline bool operator>(const Iterator<T> &other) const
+    bool operator>(const Iterator<T> &other) const
     {
         return other < *this;
     }
 
-    inline bool operator>=(const Iterator<T> &other) const
+    bool operator>=(const Iterator<T> &other) const
     {
         return !(*this < other);
     }
@@ -123,13 +134,13 @@ public:
     {
         data_ = alloc_.allocate(max_size_);
         for (size_t i = 0; i < size; ++i)
-            new(data_ + i) T();
+            alloc_.construct(data_ + i);
     }
 
     ~Vector()
     {
         for (size_t i = 0; i < size_; ++i)
-            (data_ + i)->~T();
+            alloc_.destroy(data_ + i);
         alloc_.deallocate(data_, max_size_);
     }
 
@@ -151,7 +162,7 @@ public:
     void pop_back()
     {
         if (size_)
-            (data_ + --size_)->~T();
+            alloc_.destroy(data_ + --size_);
     }
 
     bool empty() const
@@ -167,7 +178,7 @@ public:
     void clear()
     {
         for (size_t i = 0; i < size_; ++i)
-            (data_ + i)->~T();
+            alloc_.destroy(data_ + i);
         size_ = 0;
     }
 
@@ -200,12 +211,12 @@ public:
     {
         if (new_size < size_) {
             for (size_t i = new_size; i < size_; ++i)
-                (data_ + i)->~T();
+                alloc_.destroy(data_ + i);
         } else {
             if (new_size > max_size_)
                 reserve(new_size);
             for (size_t i = size_; i < new_size; ++i)
-                new(data_ + i) T();
+                alloc_.construct(data_ + i);
         }
         size_ = new_size;
     }
@@ -216,7 +227,7 @@ public:
             T *tmp = alloc_.allocate(new_size);
             for (size_t i = 0; i < size_; ++i) {
                 new(tmp + i) T(data_[i]);
-                (data_ + i)->~T();
+                alloc_.destroy(data_ + i);
             }
             alloc_.deallocate(data_, max_size_);
             max_size_ = new_size;
