@@ -21,7 +21,7 @@ public:
     {
         pool_count_ = poolSize;
         pools_ = new std::thread[pool_count_];
-        for (int i = 0; i < poolSize; ++i) {
+        for (size_t i = 0; i < poolSize; ++i) {
             pools_[i] = std::thread([this]() {
                 while (true) {
                     std::unique_lock<std::mutex> lock(mutex_);
