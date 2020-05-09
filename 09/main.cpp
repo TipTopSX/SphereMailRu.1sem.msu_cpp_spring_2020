@@ -37,5 +37,7 @@ int main()
     input.close();
     assert(sorted);
     std::cout << "OK" << std::endl;
+    std::remove(iname);
+    std::remove(oname);
     return 0;
 }

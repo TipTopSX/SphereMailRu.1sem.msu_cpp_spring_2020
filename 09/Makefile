@@ -1,7 +1,7 @@
-all: myprogram
+all: program
 
-myprogram: main.o parse.o
-	g++ main.o filesort.o -o myprogramr
+program: main.o filesort.o
+	g++ main.o filesort.o -o prog
 
 main.o: main.cpp
 	g++  -c main.cpp  --std=c++14
@@ -9,8 +9,8 @@ main.o: main.cpp
 filesort.o: filesort.cpp
 	g++ -c filesort.cpp --std=c++14
 
-test: myprogram
-	./myprogramr
+test: program
+	./prog
 
-run: myprogram
-	./myprogramr
+run: program
+	./prog
