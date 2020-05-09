@@ -6,5 +6,6 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(05)
 
 add_executable(msu_cpp_spring_2020
-        08/threadpool.hpp
-        08/main.cpp)
+        09/filesort.hpp
+        09/filesort.cpp
+        09/main.cpp)
