@@ -1,3 +1,4 @@
+#include <thread>
 #include "filesort.hpp"
 
 void print_file(const char *filename)
@@ -16,6 +17,29 @@ std::ifstream::pos_type file_size(const char *filename)
 {
     std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
     return in.tellg();
+}
+
+void split_file(const char *filename, const char *out_name1, const char *out_name2)
+{
+    auto fsize = file_size(filename);
+    auto elem_count = fsize / sizeof(arr_type);
+    auto split = elem_count / 2;
+    arr_type elem;
+
+    std::ifstream input(filename, std::ios::in | std::ios::binary);
+    std::ofstream output1(out_name1, std::ios::out | std::ios::binary);
+    for (auto i = 0; i < split; ++i) {
+        input.read(reinterpret_cast<char *>(&elem), sizeof(elem));
+        output1.write(reinterpret_cast<const char *>(&elem), sizeof(elem));
+    }
+    output1.close();
+    std::ofstream output2(out_name2, std::ios::out | std::ios::binary);
+    for (auto i = split; i < elem_count; ++i) {
+        input.read(reinterpret_cast<char *>(&elem), sizeof(elem));
+        output2.write(reinterpret_cast<const char *>(&elem), sizeof(elem));
+    }
+    output2.close();
+    input.close();
 }
 
 void merge_sorted(const char *in1_name, const char *in2_name, const char *out_name)
@@ -70,28 +94,33 @@ void file_sort(const char *filename, const size_t mem_available)
         output.close();
         // Все, что не влезает, разбиваем пополам для merge sort
     } else {
-        auto split = elem_count / 2;
-
+        input.close();
         std::string out_name1(filename);
         out_name1.append("1");
-        std::ofstream output1(out_name1, std::ios::out | std::ios::binary);
-        for (auto i = 0; i < split; ++i) {
-            input.read(reinterpret_cast<char *>(&elem), sizeof(elem));
-            output1.write(reinterpret_cast<const char *>(&elem), sizeof(elem));
-        }
-        output1.close();
         std::string out_name2(filename);
         out_name2.append("2");
-        std::ofstream output2(out_name2, std::ios::out | std::ios::binary);
-        for (auto i = split; i < elem_count; ++i) {
-            input.read(reinterpret_cast<char *>(&elem), sizeof(elem));
-            output2.write(reinterpret_cast<const char *>(&elem), sizeof(elem));
-        }
-        output2.close();
-        input.close();
+        split_file(filename, out_name1.c_str(), out_name2.c_str());
 
         file_sort(out_name1.c_str(), mem_available);
         file_sort(out_name2.c_str(), mem_available);
         merge_sorted(out_name1.c_str(), out_name2.c_str(), filename);
     }
+}
+
+void two_thread_sort(const char *in, const char *out, const size_t mem_available)
+{
+    auto mem_for_thread = mem_available / 2;
+    auto out1 = std::string(out) + "1";
+    auto out2 = std::string(out) + "2";
+    split_file(in, out1.c_str(), out2.c_str());
+
+    auto th1 = std::thread([&](){
+        file_sort(out1.c_str(), mem_for_thread);
+    });
+    auto th2 = std::thread([&](){
+        file_sort(out2.c_str(), mem_for_thread);
+    });
+    th1.join();
+    th2.join();
+    merge_sorted(out1.c_str(), out2.c_str(), out);
 }

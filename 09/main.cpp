@@ -16,22 +16,26 @@ void generate_random_file(const char *filename, size_t num)
 int main()
 {
     arr_type prev, next;
-    generate_random_file("data", 20);
-    std::cout << file_size("data") << std::endl;
-    print_file("data");
-    file_sort("data", 16);
-    std::cout << file_size("data") << std::endl;
-    print_file("data");
-    std::ifstream input("data", std::ios::in | std::ios::binary);
+    const char *iname = "data";
+    const char *oname = "out";
+
+    generate_random_file("data", 100000);
+    two_thread_sort("data", oname, 1024);
+    assert(file_size(iname) == file_size(oname));
+
+    bool sorted = true;
+    std::ifstream input(oname, std::ios::in | std::ios::binary);
     input.read(reinterpret_cast<char *>(&prev), sizeof(prev));
     while (input.good()) {
         input.read(reinterpret_cast<char *>(&next), sizeof(next));
         if (prev > next) {
-            std::cout << "unsorted" << std::endl;
+            sorted = false;
             break;
         }
         prev = next;
     }
     input.close();
+    assert(sorted);
+    std::cout << "OK" << std::endl;
     return 0;
 }
