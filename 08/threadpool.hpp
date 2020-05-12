@@ -10,7 +10,7 @@
 
 class ThreadPool
 {
-    std::thread *pools_;
+    std::vector<std::thread> pools_;
     std::mutex mutex_;
     std::condition_variable condition_;
     std::queue<std::function<void()>> tasks_;
@@ -20,9 +20,8 @@ public:
     explicit ThreadPool(size_t poolSize)
     {
         pool_count_ = poolSize;
-        pools_ = new std::thread[pool_count_];
-        for (size_t i = 0; i < poolSize; ++i) {
-            pools_[i] = std::thread([this]() {
+        for (size_t i = 0; i < pool_count_; ++i) {
+            pools_.emplace_back(std::thread([this]() {
                 while (true) {
                     std::unique_lock<std::mutex> lock(mutex_);
                     condition_.wait(lock, [this]() {
@@ -38,8 +37,7 @@ public:
                     } else
                         return;
                 }
-            });
-            pools_[i].detach();
+            }));
         }
     }
 
@@ -47,6 +45,8 @@ public:
     {
         active_ = false;
         condition_.notify_all();
+        for (auto &pool: pools_)
+            pool.join();
     }
 
     // pass arguments by value
