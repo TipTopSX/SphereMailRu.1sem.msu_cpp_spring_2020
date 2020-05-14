@@ -3,8 +3,7 @@ project(msu_cpp_spring_2020)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(08)
+include_directories(ekz)
 
 add_executable(msu_cpp_spring_2020
-        08/threadpool.hpp
-        08/main.cpp)
+        ekz/main.cpp)
