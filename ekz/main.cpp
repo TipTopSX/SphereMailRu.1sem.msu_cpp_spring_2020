@@ -75,7 +75,7 @@ public:
         // Ждем пока все досчитают
         std::unique_lock<std::mutex> lock(mutex_);
         finished_.wait(lock, [this]() {
-            return !((!lines_.empty()) || (std::any_of(busy_.begin(), busy_.end(), [](bool b) { return b; })));
+            return (lines_.empty() && std::none_of(busy_.begin(), busy_.end(), [](bool b) { return b; }));
         });
         return result_;
     }
