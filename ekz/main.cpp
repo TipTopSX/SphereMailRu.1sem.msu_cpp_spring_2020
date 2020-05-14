@@ -55,14 +55,12 @@ public:
 
     ~ThreadPool()
     {
-        if (active_) {
-            std::unique_lock<std::mutex> lock(mutex_);
-            active_ = false;
-            lock.unlock();
-            condition_.notify_all();
-            for (auto &pool: pools_)
-                pool.join();
-        }
+        std::unique_lock<std::mutex> lock(mutex_);
+        active_ = false;
+        lock.unlock();
+        condition_.notify_all();
+        for (auto &pool: pools_)
+            pool.join();
     }
 
     void sum_string(std::string &str)
@@ -76,9 +74,9 @@ public:
     {
         // Ждем пока все досчитают
         std::unique_lock<std::mutex> lock(mutex_);
-        while ((!lines_.empty()) || (std::any_of(busy_.begin(), busy_.end(), [](bool b) { return b; }))) {
-            finished_.wait(lock);
-        }
+        finished_.wait(lock, [this]() {
+            return !((!lines_.empty()) || (std::any_of(busy_.begin(), busy_.end(), [](bool b) { return b; })));
+        });
         return result_;
     }
 };
